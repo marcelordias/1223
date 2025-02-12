@@ -1,0 +1,9 @@
+<div class="mt-4 grid border border-gray-300" [ngStyle]="{'grid-template-columns': 'repeat(' + cols + ', 1fr)'}">
+  <div *ngFor="let row of grid">
+    <div *ngFor="let cell of row" class="border border-gray-300 w-12 h-12 flex items-center justify-center">
+      <span class="animate-matrix">
+        {{ cell }}
+      </span>
+    </div>
+  </div>
+</div>
