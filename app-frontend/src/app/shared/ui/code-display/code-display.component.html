@@ -1,8 +1,13 @@
+<!-- Language: HTML -->
 <div class="mt-4 text-center">
-    <span [ngClass]="{'text-green-500 blink': isLive, 'text-red-500': !isLive}" class="font-bold">
-      ● {{ isLive ? 'LIVE' : 'OFFLINE' }}
-    </span>
-    <div class="mt-2 border border-gray-300 p-2 rounded">
-      Your Code: <strong>{{ code }}</strong>
-    </div>
+  <span [ngClass]="{'text-green-500 blink': isLive, 'text-red-500': !isLive}" class="font-bold">
+    ● {{ isLive ? 'LIVE' : 'OFFLINE' }}
+  </span>
+  <div
+    class="mt-2 border border-gray-300 p-2 rounded cursor-pointer"
+    (click)="copyCode()"
+    title="Click to copy code"
+  >
+    Your Code: <strong>{{ code }}</strong>
   </div>
+</div>

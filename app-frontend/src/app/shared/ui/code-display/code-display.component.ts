@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { GridService } from '../../services/grid/grid.service';
 
 @Component({
@@ -9,22 +10,36 @@ import { GridService } from '../../services/grid/grid.service';
   standalone: false,
 })
 export class CodeDisplayComponent implements OnInit, OnDestroy {
-  code: number = 0;
+  private readonly destroy$ = new Subject<void>();
+  
+  code: string = '00';
   isLive: boolean = false;
-  private readonly subscriptions: Subscription = new Subscription();
 
   constructor(private readonly gridService: GridService) {}
 
   ngOnInit(): void {
-    this.subscriptions.add(
-      this.gridService.code$.subscribe((code) => (this.code = code))
-    );
-    this.subscriptions.add(
-      this.gridService.liveStatus$.subscribe((status) => (this.isLive = status))
+    this.gridService.code$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((code) => (this.code = code < 10 ? `0${code}` : `${code}`));
+
+    this.gridService.liveStatus$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((status) => (this.isLive = status));
+  }
+
+  copyCode(): void {
+    navigator.clipboard.writeText(this.code).then(
+      () => {
+        alert('Code copied to clipboard!');
+      },
+      () => {
+        alert('Failed to copy code');
+      },
     );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

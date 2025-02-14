@@ -1,15 +1,22 @@
 <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text">
-        {{ label }}
-      </span>
-    </div>
-    <input [type]="type" [placeholder]="placeholder" class="input input-bordered w-full max-w-xs"  
-    [(ngModel)]="value" [ngModelOptions]="{standalone: true}"
-    />
-    <div class="label">
-      <span *ngIf="hint" class="label-text-alt">
-        {{ hint }}
-      </span>
-    </div>
-  </label>
+  <div class="label">
+    <span class="label-text">
+      {{ label }}
+    </span>
+  </div>
+  <input
+    [type]="type"
+    [placeholder]="placeholder"
+    class="input input-bordered w-full max-w-xs"
+    [(ngModel)]="value"
+    (input)="onInput($event)"
+    [ngModelOptions]="{ standalone: true }"
+    [maxlength]="maxLength"
+    [disabled]="disabled"
+  />
+  <div class="label">
+    <span *ngIf="hint" class="label-text-alt">
+      {{ hint }}
+    </span>
+  </div>
+</label>

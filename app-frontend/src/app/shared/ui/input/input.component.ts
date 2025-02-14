@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-input',
@@ -7,10 +7,18 @@ import { Component, Input } from '@angular/core';
   styleUrl: './input.component.css',
 })
 export class InputComponent {
-  @Input() value!: string;
-  @Input() label!: string;
-  @Input() hint = '';
-  @Input() type = 'text';
-  @Input() placeholder = '';
-  @Input() required = false;
+  @Input() value: string = '';
+  @Input() label: string = '';
+  @Input() hint: string = '';
+  @Input() type: string = 'text';
+  @Input() placeholder: string = '';
+  @Input() required: boolean = false;
+  @Input() disabled: boolean = false;
+  @Input() maxLength: number = 100;
+  @Output() valueChange = new EventEmitter<string>();
+
+  onInput(event: any): void {
+    const newValue = event.target.value;
+    this.valueChange.emit(newValue);
+  }
 }
