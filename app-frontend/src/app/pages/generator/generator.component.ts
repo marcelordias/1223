@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { GridComponent } from '../../shared/ui/grid/grid.component';
 import { GridService } from '../../shared/services/grid/grid.service';
 import { Subscription } from 'rxjs';
@@ -20,7 +20,7 @@ export class GeneratorComponent implements OnInit, OnDestroy {
 
   @ViewChild(GridComponent) gridComponent!: GridComponent;
 
-  constructor(@Inject(GridService) private readonly gridService: GridService) {}
+  constructor(private readonly gridService: GridService) {}
 
   ngOnInit(): void {
     this.character = this.gridService.getBias() ?? '';
