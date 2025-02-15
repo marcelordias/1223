@@ -1,0 +1,12 @@
+<input type="checkbox" id="generic-modal-toggle" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box w-auto max-w-full">
+    <div class="flex justify-between items-center">
+      <h3 class="font-bold text-lg">{{ title }}</h3>
+      <label for="generic-modal-toggle" class="btn btn-sm btn-circle">✕</label>
+    </div>
+    <div class="py-4 overflow-x-auto">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

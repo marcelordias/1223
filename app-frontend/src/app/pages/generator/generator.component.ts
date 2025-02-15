@@ -1,21 +1,33 @@
-import { Component, ViewChild } from '@angular/core';
-import { GridComponent } from '../../shared/modules/ui/grid/grid.component';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { GridComponent } from '../../shared/ui/grid/grid.component';
 import { GridService } from '../../shared/services/grid/grid.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-generator',
   standalone: false,
   templateUrl: './generator.component.html',
-  styleUrl: './generator.component.css',
+  styleUrls: ['./generator.component.css'],
 })
-export class GeneratorComponent {
+export class GeneratorComponent implements OnInit, OnDestroy {
   character: string = '';
   error: string = '';
   cooldownActive: boolean = false;
+  private cooldownTimeoutId?: number;
+  grid: string[][] = [];
+
+  private gridSub!: Subscription;
 
   @ViewChild(GridComponent) gridComponent!: GridComponent;
 
-  constructor(private readonly gridService: GridService) {}
+  constructor(@Inject(GridService) private readonly gridService: GridService) {}
+
+  ngOnInit(): void {
+    this.character = this.gridService.getBias() ?? '';
+    this.gridSub = this.gridService.grid$.subscribe((newGrid) => {
+      this.grid = newGrid;
+    });
+  }
 
   /**
    * Handles the input coming from the generic InputComponent.
@@ -37,13 +49,20 @@ export class GeneratorComponent {
 
     if (newValue !== '') {
       this.cooldownActive = true;
-      setTimeout(() => {
+      this.cooldownTimeoutId = window.setTimeout(() => {
         this.cooldownActive = false;
       }, 4000);
     }
   }
 
   startGenerator(): void {
-    this.gridComponent.startRefresher();
+    this.gridService.startGlobalGeneration();
+  }
+
+  ngOnDestroy(): void {
+    this.gridSub.unsubscribe();
+    if (this.cooldownTimeoutId) {
+      clearTimeout(this.cooldownTimeoutId);
+    }
   }
 }

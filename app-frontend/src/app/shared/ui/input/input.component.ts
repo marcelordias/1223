@@ -7,7 +7,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styleUrl: './input.component.css',
 })
 export class InputComponent {
-  @Input() value: string = '';
+  @Input() value: any = '';
   @Input() label: string = '';
   @Input() hint: string = '';
   @Input() type: string = 'text';

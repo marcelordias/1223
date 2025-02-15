@@ -1,0 +1,21 @@
+<table class="table w-full">
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns">
+          {{ col.header | uppercase }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let col of columns">
+          <span
+            [ngStyle]="{'cursor': col.field === 'grid' ? 'pointer' : 'default'}"
+            (click)="col.field === 'grid' && onCellClick(col, row)"
+          >
+            {{ row[col.field] }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
