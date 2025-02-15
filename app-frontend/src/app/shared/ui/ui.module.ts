@@ -6,15 +6,17 @@ import { RouterModule } from '@angular/router';
 import { ThemeControlComponent } from './theme-control/theme-control.component';
 import { FormsModule } from '@angular/forms';
 import { CodeDisplayComponent } from './code-display/code-display.component';
-
-
+import { TableComponent } from './table/table.component';
+import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
   declarations: [
     InputComponent,
     NavbarComponent,
     ThemeControlComponent,
-    CodeDisplayComponent
+    CodeDisplayComponent,
+    TableComponent,
+    ModalComponent,
   ],
   imports: [
     FormsModule,
@@ -24,7 +26,9 @@ import { CodeDisplayComponent } from './code-display/code-display.component';
   exports: [
     InputComponent,
     NavbarComponent,
-    CodeDisplayComponent
+    CodeDisplayComponent,
+    TableComponent,
+    ModalComponent,
   ]
 })
 export class UiModule { }
