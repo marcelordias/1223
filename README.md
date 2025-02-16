@@ -2,7 +2,7 @@
 
 ## Live Demo
 
- [Click.me](https://marcelordias.github.io/1223/login) 
+ [Click.me](https://marcelordias.github.io/1223) 
 
 ## Overview
 This repository contains a full-stack application divided into two main parts: the **Frontend** and the **Backend**. The project has been developed with a focus on scalability, modularity, and real-time communication using Socket.io. Continuous integration and automated deployments ensure that updates are delivered quickly and reliably.
