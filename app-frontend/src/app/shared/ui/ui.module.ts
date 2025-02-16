@@ -8,6 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { CodeDisplayComponent } from './code-display/code-display.component';
 import { TableComponent } from './table/table.component';
 import { ModalComponent } from './modal/modal.component';
+import { FooterComponent } from './footer/footer.component';
+import { ToastComponent } from './toast/toast.component';
+import { ClockComponent } from './clock/clock.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +20,9 @@ import { ModalComponent } from './modal/modal.component';
     CodeDisplayComponent,
     TableComponent,
     ModalComponent,
+    FooterComponent,
+    ToastComponent,
+    ClockComponent,
   ],
   imports: [
     FormsModule,
@@ -29,6 +35,9 @@ import { ModalComponent } from './modal/modal.component';
     CodeDisplayComponent,
     TableComponent,
     ModalComponent,
+    FooterComponent,
+    ToastComponent,
+    ClockComponent,
   ]
 })
 export class UiModule { }
