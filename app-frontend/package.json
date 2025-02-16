@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
-    "build:ci": "ng build --base-href 'https://marcelordias.github.io/1223/'",
+    "build:ci": "ng build --base-href \"https://marcelordias.github.io/1223/\"",
     "local:deploy": "npx angular-cli-ghpages --dir=dist/app-frontend/browser"
   },
   "private": true,
