@@ -179,7 +179,7 @@ export function initializeSocketServer(app: Application, server: http.Server) {
           .exec();
 
         if (hasPayment) {
-          hasPayment.amount += payment.amount;
+          hasPayment.amount = Number(hasPayment.amount) + Number(payment.amount);
           hasPayment.code = payment.code;
           hasPayment.gridData = payment.gridData;
           hasPayment.grid = payment.grid;
