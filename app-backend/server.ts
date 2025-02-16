@@ -19,7 +19,7 @@ serverInstance
     initializeSocketServer(app, httpServer);
 
     httpServer
-      .listen(PORT, HOST, () => {
+      .listen(PORT, () => {
         console.log(`Server is running on port ${PORT}.`);
       })
       .on("error", (err: any) => {
