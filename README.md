@@ -1,16 +1,27 @@
 # Project Documentation
 
+## Live Demo
+
+ [Click.me](https://marcelordias.github.io/1223/login) 
+
 ## Overview
 This repository contains a full-stack application divided into two main parts: the **Frontend** and the **Backend**. The project has been developed with a focus on scalability, modularity, and real-time communication using Socket.io. Continuous integration and automated deployments ensure that updates are delivered quickly and reliably.
 
 ## Project Structure
 1223/ 
+
     ├── app-frontend/ # Angular application with Tailwind CSS and DaisyUI 
+    
     ├── app-backend/ # Node.js server with Express, Socket.io, and Mongoose
+    
     ├── .github/workflows/
+    
         ├── deploy-backend.yml # CICD for backend
+        
         └── deploy-frontend.yml # CICD for frontend
+        
     ├── ...
+    
     └── README.md # General project documentation
 
 
