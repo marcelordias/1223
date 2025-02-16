@@ -183,11 +183,12 @@ export function initializeSocketServer(app: Application, server: http.Server) {
           hasPayment.code = payment.code;
           hasPayment.gridData = payment.gridData;
           hasPayment.grid = payment.grid;
-          hasPayment.version = (hasPayment.version || 1) + 1;
+          hasPayment.version = (hasPayment.version ?? 1) + 1;
           hasPayment.updatedAt = new Date();
           console.log(
             `Merged payment for ${payment.name}. New version: ${hasPayment.version}`
           );
+          await Payment.updateOne({ name: payment.name }, hasPayment);
         } else {
           await Payment.create(payment);
           console.log(`Added new payment for ${payment.name}`);
