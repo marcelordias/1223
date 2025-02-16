@@ -19,7 +19,7 @@ jobs:
         working-directory: app-frontend
         run: |
           npm install
-          npm run build:ci"
+          npm run build:ci
 
       # - name: Run Tests
       #   working-directory: app-frontend
