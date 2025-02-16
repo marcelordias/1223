@@ -23,6 +23,8 @@ const paymentSchema = new mongoose.Schema(
         type: Number,
         default: 1,
     },
+    creator: { type: String, required: [true, "creator_required"] },
+    updatedBy: { type: String },
   },
   {
     timestamps: true,

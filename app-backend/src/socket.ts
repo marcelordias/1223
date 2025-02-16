@@ -160,7 +160,8 @@ export function initializeSocketServer(app: Application, server: http.Server) {
       try {
         startGlobalGridGeneration(bias);
 
-        const requester = (socket as SocketWithUser).user?.username || "Unknown";
+        const requester =
+          (socket as SocketWithUser).user?.username || "Unknown";
 
         socket.broadcast.emit("toast", {
           message: `Grid was updated by: ${requester}.`,
@@ -168,36 +169,42 @@ export function initializeSocketServer(app: Application, server: http.Server) {
         });
       } catch (error) {
         console.error("Error handling generateGrid event:", error);
-        socket.emit("gridGenerationError", { message: "Failed to generate grid." });
+        socket.emit("gridGenerationError", {
+          message: "Failed to generate grid.",
+        });
       }
     });
 
     socket.on("addPayment", async (payment) => {
       try {
+        const requester =
+          (socket as SocketWithUser).user?.username || "Unknown";
         const hasPayment = await Payment.findOne({ name: payment.name })
           .lean()
           .exec();
 
         if (hasPayment) {
-          hasPayment.amount = Number(hasPayment.amount) + Number(payment.amount);
+          hasPayment.amount =
+            Number(hasPayment.amount) + Number(payment.amount);
           hasPayment.code = payment.code;
           hasPayment.gridData = payment.gridData;
           hasPayment.grid = payment.grid;
           hasPayment.version = (hasPayment.version ?? 1) + 1;
           hasPayment.updatedAt = new Date();
+          hasPayment.updatedBy = requester;
           console.log(
             `Merged payment for ${payment.name}. New version: ${hasPayment.version}`
           );
           await Payment.updateOne({ name: payment.name }, hasPayment);
         } else {
+          payment.creator = requester;
+          payment.updatedBy = requester;
           await Payment.create(payment);
           console.log(`Added new payment for ${payment.name}`);
         }
         const payments = await Payment.find().lean().exec();
         io.emit("paymentUpdate", payments);
 
-        const requester =
-          (socket as SocketWithUser).user?.username || "Unknown";
         socket.broadcast.emit("toast", {
           message: `Payment added by: ${requester}.`,
           type: "success",
