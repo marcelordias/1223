@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { GridService } from './grid.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
@@ -8,7 +7,8 @@ describe('GridService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClientTesting()],
+      imports: [],
+      providers: [GridService, provideHttpClientTesting()]
     });
     service = TestBed.inject(GridService);
   });
