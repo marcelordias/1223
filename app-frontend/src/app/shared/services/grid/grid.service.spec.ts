@@ -8,7 +8,7 @@ describe('GridService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [],
-      providers: [GridService, provideHttpClientTesting()]
+      providers: [GridService, ...provideHttpClientTesting()]
     });
     service = TestBed.inject(GridService);
   });
