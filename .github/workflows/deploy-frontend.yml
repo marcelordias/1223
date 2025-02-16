@@ -21,6 +21,10 @@ jobs:
           npm install
           npm run build --production
 
+      - name: Run Tests
+        working-directory: app-frontend
+        run: npm run test
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
