@@ -8,7 +8,7 @@ import { SocketService } from '../../services/socket/socket.service';
   styleUrls: ['./footer.component.css'],
 })
 export class FooterComponent implements OnInit {
-  socketId: string = 'Not connected';
+  socketId: string = '';
 
   constructor(private readonly socketService: SocketService) {}
 
@@ -16,6 +16,9 @@ export class FooterComponent implements OnInit {
     this.socketService.on('connect', () => {
       this.socketId = this.socketService.getSocketId();
     });
-    this.socketId = this.socketService.getSocketId();
+
+    this.socketService.on('disconnect', () => {
+      this.socketId = '';
+    });
   }
 }
