@@ -1,8 +1,6 @@
 <label class="form-control w-full max-w-xs">
   <div class="label">
-    <span class="label-text">
-      {{ label }}
-    </span>
+    <span class="label-text">{{ label }}</span>
   </div>
   <input
     [type]="type"
@@ -10,13 +8,12 @@
     class="input input-bordered w-full max-w-xs"
     [(ngModel)]="value"
     (input)="onInput($event)"
+    (keypress)="onKeyPress($event)"
     [ngModelOptions]="{ standalone: true }"
     [maxlength]="maxLength"
     [disabled]="disabled"
   />
   <div class="label">
-    <span *ngIf="hint" class="label-text-alt">
-      {{ hint }}
-    </span>
+    <span *ngIf="hint" class="label-text-alt">{{ hint }}</span>
   </div>
 </label>

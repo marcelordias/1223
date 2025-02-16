@@ -1,0 +1,28 @@
+<div class="flex flex-col items-center p-4">
+    <h2 class="text-xl font-bold mb-4">Login</h2>
+
+    <app-input [(value)]="username" label="Username" placeholder="stitch" type="text">
+    </app-input>
+
+    <app-input *ngIf="!signupMode" [(value)]="password" label="Password" placeholder="*********" type="password">
+    </app-input>
+
+    <app-input *ngIf="signupMode" [(value)]="choosePassword" label="Choose Password" placeholder="Enter a new password"
+        type="password">
+    </app-input>
+
+    <p *ngIf="error" class="text-red-500 mt-2">{{ error }}</p>
+
+    <button class="btn btn-primary mt-4" (click)="onLogin()" *ngIf="!signupMode">
+        Login
+    </button>
+
+    <button class="btn btn-primary mt-4" (click)="onSignup()" *ngIf="signupMode">
+        Signup
+    </button>
+
+    <button class="btn btn-secondary mt-2 btn-sm" 
+    (click)="signupMode = false" *ngIf="signupMode">
+        Back to Login
+    </button>
+</div>

@@ -1,14 +1,15 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TableColumn } from '../../shared/ui/table/table.component';
 import { Subject } from 'rxjs';
 import { GridService } from '../../shared/services/grid/grid.service';
+import { SocketService } from '../../shared/services/socket/socket.service';
 
 interface PaymentEntry {
   name: string;
   amount: number;
   code: number;
   grid: number;
-  gridData: string[][];
+  gridData: string;
 }
 
 @Component({
@@ -17,17 +18,14 @@ interface PaymentEntry {
   templateUrl: './payments.component.html',
   styleUrls: ['./payments.component.css'],
 })
-export class PaymentsComponent implements OnDestroy {
+export class PaymentsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   paymentName: string = '';
   paymentAmount: number = 0;
   modalGridData: string[][] = [];
+  isUpdating: boolean = false;
 
-  paymentList: PaymentEntry[] = [
-    { name: 'Payment 1', amount: 100, code: 34, grid: 100, gridData: [] },
-    { name: 'Payment 2', amount: 100, code: 22, grid: 100, gridData: [] },
-    { name: 'Payment 3', amount: 100, code: 91, grid: 100, gridData: [] },
-  ];
+  paymentList: PaymentEntry[] = [];
 
   tableColumns: TableColumn[] = [
     { field: 'name', header: 'Name' },
@@ -36,7 +34,19 @@ export class PaymentsComponent implements OnDestroy {
     { field: 'grid', header: 'Grid' },
   ];
 
-  constructor(private readonly gridService: GridService) {}
+  constructor(
+    private readonly gridService: GridService,
+    private readonly socketService: SocketService
+  ) {}
+
+  ngOnInit(): void {
+    this.socketService.on<PaymentEntry[]>('paymentUpdate', (payments: PaymentEntry[]) => {
+      this.paymentList = payments;
+      this.isUpdating = false;
+    });
+
+    this.socketService.emit('getPayments');
+  }
 
   addPayment() {
     const currentCode = this.gridService.getCode();
@@ -47,24 +57,27 @@ export class PaymentsComponent implements OnDestroy {
       this.paymentAmount > 0 &&
       currentCode > 0
     ) {
+      this.isUpdating = true;
       const displayGrid = currentGrid.length * (currentGrid[0]?.length || 0);
       const gridCopy = currentGrid.map((row) => [...row]);
 
-      this.paymentList.push({
+      const newPayment: PaymentEntry = {
         name: this.paymentName,
         amount: this.paymentAmount,
         code: currentCode,
         grid: displayGrid,
-        gridData: gridCopy,
-      });
+        gridData: JSON.stringify(gridCopy),
+      };
+
+      this.socketService.emit('addPayment', newPayment);
+
       this.paymentName = '';
       this.paymentAmount = 0;
     }
   }
 
   showGrid(payment: PaymentEntry): void {
-    this.modalGridData = payment.gridData;
-    // Abre o modal acionando o input checkbox
+    this.modalGridData = JSON.parse(payment.gridData);
     const modalToggle = document.getElementById('generic-modal-toggle') as HTMLInputElement;
     if (modalToggle) {
       modalToggle.checked = true;

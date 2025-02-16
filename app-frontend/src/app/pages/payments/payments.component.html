@@ -2,9 +2,9 @@
     <app-code-display></app-code-display>
 </div>
 <div class="p-4">
-    <div class="flex items-center gap-2 mb-4">
-        <app-input [(value)]="paymentName" placeholder="Payment" type="text" [maxLength]="100"></app-input>
-        <app-input [(value)]="paymentAmount" placeholder="Amount" type="number" [maxLength]="10"></app-input>
+    <div class="flex items-center gap-2 mb-4 justify-center">
+        <app-input [label]="''"id="paymentName" [(value)]="paymentName" placeholder="Payment" type="text" [maxLength]="100"></app-input>
+        <app-input [label]="''" id="paymentAmount" [(value)]="paymentAmount" placeholder="Amount" type="number" [maxLength]="10"></app-input>
         <button class="btn btn-primary" (click)="addPayment()">+ ADD</button>
     </div>
 

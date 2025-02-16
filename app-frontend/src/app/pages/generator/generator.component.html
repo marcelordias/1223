@@ -9,15 +9,20 @@
       [hint]="error"
       [disabled]="cooldownActive"
       [maxLength]="1"
+      [pattern]="'^[a-zA-Z]$'"
     ></app-input>
-    <button (click)="startGenerator()" class="btn btn-primary">
+
+    <app-clock
+      [time]="serverTime"
+    ></app-clock>
+    
+    <button
+      (click)="startGenerator()" 
+      class="btn btn-primary"
+      [disabled]="cooldownActive">
       Generate 2D Grid
     </button>
   </div>
-  <app-grid 
-  [cols]="10"
-  [rows]="10"
-  [grid]="grid"
-  ></app-grid>
+  <app-grid [cols]="10" [rows]="10" [grid]="grid"></app-grid>
   <app-code-display></app-code-display>
 </div>

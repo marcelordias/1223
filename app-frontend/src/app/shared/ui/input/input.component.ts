@@ -15,7 +15,17 @@ export class InputComponent {
   @Input() required: boolean = false;
   @Input() disabled: boolean = false;
   @Input() maxLength: number = 100;
+  @Input() pattern: string = '';
   @Output() valueChange = new EventEmitter<string>();
+
+  onKeyPress(event: KeyboardEvent): void {
+    if (this.pattern) {
+      const regex = new RegExp(this.pattern);
+      if (!regex.test(event.key)) {
+        event.preventDefault();
+      }
+    }
+  }
 
   onInput(event: any): void {
     const newValue = event.target.value;
