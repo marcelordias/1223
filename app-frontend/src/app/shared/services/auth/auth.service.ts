@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { Router } from '@angular/router';
 
 export interface UserInfo {
   username: string;
@@ -16,7 +17,10 @@ export class AuthService {
   private readonly userInfoSubject = new BehaviorSubject<UserInfo | null>(null);
   public readonly userInfoSubject$ = this.userInfoSubject.asObservable();
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router
+  ) {}
 
   login(username: string, password: string): Observable<any> {
     return this.http
@@ -30,7 +34,6 @@ export class AuthService {
         }),
         tap((response: any) => {
           this.setToken(response.data.token);
-          this.userInfoSubject.next(response.data.user);
         }),
         catchError((error: any) => throwError(() => error))
       );
@@ -48,7 +51,6 @@ export class AuthService {
         }),
         tap((response: any) => {
           this.setToken(response.data.token);
-          this.userInfoSubject.next(response.data.user);
         }),
         catchError((error: any) => throwError(() => error))
       );
@@ -92,6 +94,7 @@ export class AuthService {
   logout(): void {
     this.clearToken();
     this.userInfoSubject.next(null);
+    this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
@@ -100,6 +103,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  getUserInfo(): UserInfo | null {
+    return this.userInfoSubject.value;
   }
 
   private setToken(token: string): void {

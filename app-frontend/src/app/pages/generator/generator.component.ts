@@ -27,6 +27,10 @@ export class GeneratorComponent implements OnInit, OnDestroy {
     this.gridService.cooldown$
       .pipe(takeUntil(this.destroy$))
       .subscribe((status) => (this.cooldownActive = status));
+    
+    this.gridService.bias$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((bias) => (this.character = bias ?? ''));
 
     this.socketService.on<string>('serverTime', (time) => {
       this.serverTime = time;
