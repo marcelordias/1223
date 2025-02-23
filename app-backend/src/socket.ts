@@ -8,34 +8,62 @@ import {
 import { verifyToken } from "./utils/token.util";
 import { Payment } from "./models/payment.model";
 import { User } from "./models/user.model";
+import { UserType } from "./types/user.type";
 
 interface SocketWithUser extends Socket {
-  user?: any;
+  user?: UserType;
+}
+
+interface PaymentData {
+  name: string;
+  amount: number;
+  code: number;
+  gridData: string;
+  grid: number;
 }
 
 const GRID_ROWS = 10;
 const GRID_COLS = 10;
 const BIAS_PERCENTAGE = 0.2;
+const GRID_UPDATE_INTERVAL = 2000;
+const COOLDOWN_DURATION = 4000;
 
-function generateGrid(bias?: string): string[][] {
+const randomLetter = (): string =>
+  String.fromCharCode(97 + Math.floor(Math.random() * 26));
+
+const countOccurrences = (grid: string[][], char: string): number =>
+  grid.reduce(
+    (count, row) => count + row.filter((cell) => cell === char).length,
+    0
+  );
+
+const reduceToSingleDigit = (value: number): number => {
+  while (value > 9) value = Math.floor(value / 2);
+  return value;
+};
+
+const generateGrid = (bias?: string): string[][] => {
+  if (bias && !/^[a-z]$/i.test(bias)) {
+    throw new Error("Bias must be a single letter.");
+  }
   const totalCells = GRID_ROWS * GRID_COLS;
   const biasedCells = bias ? Math.floor(totalCells * BIAS_PERCENTAGE) : 0;
-
   const grid = Array.from({ length: GRID_ROWS }, () =>
-    Array.from({ length: GRID_COLS }, () => randomLetter())
+    Array(GRID_COLS).fill(null).map(randomLetter)
   );
 
   if (bias && biasedCells > 0) {
+    const lowerBias = bias.toLowerCase();
     for (let i = 0; i < biasedCells; i++) {
-      const randRow = Math.floor(Math.random() * GRID_ROWS);
-      const randCol = Math.floor(Math.random() * GRID_COLS);
-      grid[randRow][randCol] = bias.toLowerCase();
+      const row = Math.floor(Math.random() * GRID_ROWS);
+      const col = Math.floor(Math.random() * GRID_COLS);
+      grid[row][col] = lowerBias;
     }
   }
   return grid;
-}
+};
 
-function generateCode(grid: string[][]): number {
+const generateCode = (grid: string[][]): number => {
   const seconds = new Date().getSeconds();
   const digit1 = Math.floor(seconds / 10);
   const digit2 = seconds % 10;
@@ -43,41 +71,12 @@ function generateCode(grid: string[][]): number {
   const char1 = grid[digit1][digit2];
   const char2 = grid[digit2][digit1];
 
-  let count1 = reduceToSingleDigit(countOccurrences(grid, char1));
-  let count2 = reduceToSingleDigit(countOccurrences(grid, char2));
+  const count1 = reduceToSingleDigit(countOccurrences(grid, char1));
+  const count2 = reduceToSingleDigit(countOccurrences(grid, char2));
 
   return Number(`${count1}${count2}`);
-}
+};
 
-function reduceToSingleDigit(value: number): number {
-  while (value > 9) {
-    value = Math.floor(value / 2);
-  }
-  return value;
-}
-
-function randomLetter(): string {
-  return String.fromCharCode(97 + Math.floor(Math.random() * 26));
-}
-
-function countOccurrences(grid: string[][], char: string): number {
-  let count = 0;
-  grid.forEach((row) =>
-    row.forEach((cell) => {
-      if (cell === char) count++;
-    })
-  );
-  return count;
-}
-
-/**
- * Estratégia simples de resolução de conflitos
- * para o evento 'addPayment'. Caso dois clientes enviem pagamentos com o mesmo nome,
- * o servidor faz merge das entradas:
- *   - Se o pagamento já existir, soma o valor, atualiza o código e a grid associada,
- *     incrementando o campo 'version' para indicar a atualização.
- *   - Caso contrário, cria um novo registro atribuindo um id e definindo a versão inicial.
- */
 export function initializeSocketServer(app: Application, server: http.Server) {
   const io = new Server(server, {
     cors: {
@@ -88,12 +87,25 @@ export function initializeSocketServer(app: Application, server: http.Server) {
 
   let globalGridInterval: NodeJS.Timeout | null = null;
   let currentBias: string | undefined;
+  let isGeneratingGrid = false;
+  const activeUsers: Map<string, SocketWithUser> = new Map();
 
-  function startGlobalGridGeneration(bias?: string) {
-    currentBias = bias;
-    if (globalGridInterval) {
-      clearInterval(globalGridInterval);
+  setInterval(() => {
+    try {
+      const now = new Date();
+      io.emit("serverTime", now.toISOString());
+    } catch (error) {
+      console.error("Error emitting server time:", error);
     }
+  }, 1000);
+
+  const startGlobalGridGeneration = (bias?: string) => {
+    if (isGeneratingGrid) {
+      return;
+    }
+    isGeneratingGrid = true;
+    currentBias = bias;
+    if (globalGridInterval) clearInterval(globalGridInterval);
     globalGridInterval = setInterval(() => {
       try {
         const grid = generateGrid(currentBias);
@@ -102,21 +114,28 @@ export function initializeSocketServer(app: Application, server: http.Server) {
       } catch (error) {
         console.error("Error in global grid generation:", error);
       }
-    }, 2000);
-  }
+    }, GRID_UPDATE_INTERVAL);
+    setTimeout(() => {
+      isGeneratingGrid = false;
+    }, COOLDOWN_DURATION);
+  };
 
-  io.use((socket, next) => {
+  io.use((socket: Socket, next) => {
     try {
       const token = socket.handshake.auth.token;
       const verified = verifyToken(token);
 
       if (token && verified) {
         const { id } = verified as { id: string };
-
         User.findById(id)
           .then((user) => {
-            (socket as SocketWithUser).user = user;
-            next();
+            if (user) {
+              const userData = { ...user.toObject(), _id: user._id.toString() };
+              (socket as SocketWithUser).user = userData;
+              next();
+            } else {
+              throw new Error("User not found");
+            }
           })
           .catch((err) => {
             console.error("Error finding user by ID:", err);
@@ -127,11 +146,7 @@ export function initializeSocketServer(app: Application, server: http.Server) {
             next(new Error("Unauthorized: User not found"));
           });
       } else {
-        socket.emit("tokenError", {
-          status: ResponseStatusEnum.ERROR,
-          message: ResponseMessageEnum.INVALID_TOKEN,
-        });
-        next(new Error("Unauthorized: Invalid token"));
+        throw new Error("Invalid token");
       }
     } catch (error) {
       console.error("Error validating token: ", error);
@@ -143,28 +158,41 @@ export function initializeSocketServer(app: Application, server: http.Server) {
     }
   });
 
-  io.on("connection", (socket) => {
-    const requester = (socket as SocketWithUser).user?.username || "Unknown";
-    console.log(`Client connected: ${socket.id} (${requester})`);
+  io.on("connection", (socket: SocketWithUser) => {
+    const user = socket.user;
+    if (!user) {
+      return;
+    }
 
-    let serverTimeInterval: NodeJS.Timeout = setInterval(() => {
-      try {
-        const now = new Date();
-        io.emit("serverTime", now.toISOString());
-      } catch (error) {
-        console.error("Error emitting server time:", error);
-      }
-    }, 1000);
+    const username = user.username ?? "Unknown";
+    const userId = user._id.toString();
+
+    if (activeUsers.has(userId)) {
+      const oldSocket = activeUsers.get(userId)!;
+      oldSocket.disconnect(true);
+    }
+    activeUsers.set(userId, socket);
+
+    console.log(`Client connected: ${socket.id} (${username})`);
+    console.log(`Active users: ${activeUsers.size}`);
+    
+    io.emit("activeUsers", Array.from(activeUsers.values()).map((u)=>u.user?.username));
+
+    socket.broadcast.emit("toast", {
+      message: `${username} connected.`,
+      type: "info",
+    });
 
     socket.on("generateGrid", ({ bias }: { bias?: string }) => {
       try {
         startGlobalGridGeneration(bias);
-
-        const requester =
-          (socket as SocketWithUser).user?.username || "Unknown";
-
+        io.emit("cooldownStatus", true);
+        setTimeout(() => {
+          io.emit("cooldownStatus", false);
+        }, COOLDOWN_DURATION);
+        io.emit("biasUpdate", bias);
         socket.broadcast.emit("toast", {
-          message: `Grid was updated by: ${requester}.`,
+          message: `Grid was updated by: ${username}.`,
           type: "info",
         });
       } catch (error) {
@@ -175,60 +203,67 @@ export function initializeSocketServer(app: Application, server: http.Server) {
       }
     });
 
-    socket.on("addPayment", async (payment) => {
+    socket.on("addPayment", async (payment: PaymentData) => {
       try {
-        const requester =
-          (socket as SocketWithUser).user?.username || "Unknown";
-        const hasPayment = await Payment.findOne({ name: payment.name })
-          .lean()
-          .exec();
-
-        if (hasPayment) {
-          hasPayment.amount =
-            Number(hasPayment.amount) + Number(payment.amount);
-          hasPayment.code = payment.code;
-          hasPayment.gridData = payment.gridData;
-          hasPayment.grid = payment.grid;
-          hasPayment.version = (hasPayment.version ?? 1) + 1;
-          hasPayment.updatedAt = new Date();
-          hasPayment.updatedBy = requester;
+        const existingPayment = await Payment.findOne({ name: payment.name });
+        if (existingPayment) {
+          existingPayment.amount += Number(payment.amount);
+          existingPayment.code = payment.code;
+          existingPayment.gridData = payment.gridData;
+          existingPayment.grid = payment.grid;
+          existingPayment.version = (existingPayment.version || 0) + 1;
+          existingPayment.updatedAt = new Date();
+          existingPayment.updatedBy = username;
+          await existingPayment.save();
           console.log(
-            `Merged payment for ${payment.name}. New version: ${hasPayment.version}`
+            `Merged payment for ${payment.name}. New version: ${existingPayment.version}`
           );
-          await Payment.updateOne({ name: payment.name }, hasPayment);
         } else {
-          payment.creator = requester;
-          payment.updatedBy = requester;
-          await Payment.create(payment);
+          const newPayment = new Payment({
+            ...payment,
+            creator: username,
+            updatedBy: username,
+            version: 1,
+          });
+          await newPayment.save();
           console.log(`Added new payment for ${payment.name}`);
         }
-        const payments = await Payment.find().lean().exec();
+        const payments = await Payment.find();
         io.emit("paymentUpdate", payments);
-
         socket.broadcast.emit("toast", {
-          message: `Payment added by: ${requester}.`,
+          message: `Payment added by: ${username}.`,
           type: "success",
         });
       } catch (error) {
         console.error("Error adding payment: ", error);
+        socket.emit("paymentError", {
+          message: "Failed to add payment.",
+        });
       }
     });
 
     socket.on("getPayments", async () => {
       try {
-        const payments = await Payment.find().lean().exec();
+        const payments = await Payment.find();
         socket.emit("paymentUpdate", payments);
       } catch (error) {
         console.error("Error getting payments:", error);
+        socket.emit("paymentError", {
+          message: "Failed to retrieve payments.",
+        });
       }
     });
 
     socket.on("disconnect", () => {
-      const requester = (socket as SocketWithUser).user?.username || "Unknown";
-      console.log(`Client disconnected: ${socket.id} (${requester})`);
-      if (io.sockets.sockets.size === 0 && globalGridInterval) {
+      activeUsers.delete(userId);
+      io.emit("activeUsers", Array.from(activeUsers.values()).map((u)=>u.user?.username));
+      socket.broadcast.emit("toast", {
+        message: `${username} disconnected.`,
+        type: "info",
+      });
+      console.log(`Client disconnected: ${socket.id} (${username})`);
+      if (activeUsers.size === 0 && globalGridInterval) {
         clearInterval(globalGridInterval);
-        clearInterval(serverTimeInterval);
         globalGridInterval = null;
         console.log(
           "All clients disconnected. Global grid generation stopped."

@@ -45,12 +45,14 @@ export class GridService {
     this.socketService.on<boolean>('cooldownStatus', (status: boolean) => {
       this.cooldownSubject.next(status);
     });
+
+    this.socketService.on<string>('biasUpdate', (bias: string) => {
+      this.biasSubject.next(bias);
+    });
   }
 
   startGlobalGeneration(bias: string): void {
     this.socketService.emit('generateGrid', { bias });
-    this.cooldownSubject.next(true);
-    setTimeout(() => this.cooldownSubject.next(false), 4000);
   }
 
   getBias(): string | null {

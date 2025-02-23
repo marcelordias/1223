@@ -1,3 +1,9 @@
 <footer *ngIf="socketId" class="p-4 text-left text-xs">
     <span><strong>Socket ID:</strong> {{ socketId }}</span>
+    <span class="ml-4"><strong>Active users:</strong>&nbsp;
+        <div class="tooltip" [attr.data-tip]="'[' + activeUsers.join(', ') + ']'">
+            {{ activeUsers.length}}
+        </div>
+    </span>
+
 </footer>
