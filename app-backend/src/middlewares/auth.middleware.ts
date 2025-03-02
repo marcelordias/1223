@@ -28,27 +28,41 @@ export const authMiddleware = (
   try {
     const verified = verifyToken(token);
 
-    const { id } = verified as { id: string };
+    const { _id } = verified as { _id: string };
 
-    if (!id) {
+    if (!_id) {
       return res.status(ResponseCodeStatusEnum.UNAUTHORIZED).json({
         status: ResponseStatusEnum.ERROR,
         message: ResponseMessageEnum.ACCESS_DENIED,
       } as ResponseMessageType);
     }
 
-    User.findById(id).then((user) => {
+    User.findById(_id)
+      .lean()
+      .exec()
+      .then((user) => {
       if (!user) {
         return res.status(ResponseCodeStatusEnum.UNAUTHORIZED).json({
-          status: ResponseStatusEnum.ERROR,
-          message: ResponseMessageEnum.ACCESS_DENIED,
+        status: ResponseStatusEnum.ERROR,
+        message: ResponseMessageEnum.ACCESS_DENIED,
         } as ResponseMessageType);
       }
 
-      req.user = user as unknown as UserType;
+      const { _id, ...userData } = user;
+      const userObject: UserType = {
+        _id: _id.toString(),
+        ...userData,
+      };
 
+      req.user = userObject;
       next();
-    });
+      })
+      .catch((error) => {
+      return res.status(ResponseCodeStatusEnum.UNAUTHORIZED).json({
+        status: ResponseStatusEnum.ERROR,
+        message: ResponseMessageEnum.ACCESS_DENIED,
+      } as ResponseMessageType);
+      });
   } catch (error: any) {
     res.status(ResponseCodeStatusEnum.BAD_REQUEST).json({
       status: ResponseStatusEnum.ERROR,

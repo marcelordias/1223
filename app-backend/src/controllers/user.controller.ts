@@ -6,6 +6,8 @@ import {
 } from "../enums/response-status.enum";
 import { ResponseMessageType } from "../types/response.type";
 import { CustomRequestType } from "../types/request.type";
+import { secureUser } from "../utils/auth.util";
+import { UserType } from "../types/user.type";
 
 export async function userInfo(
   req: CustomRequestType,
@@ -24,7 +26,7 @@ export async function userInfo(
     status: ResponseStatusEnum.SUCCESS,
     message: ResponseMessageEnum.SUCCESS,
     data: {
-      user,
+      user: secureUser(user as unknown as UserType),
     },
   } as ResponseMessageType);
 }

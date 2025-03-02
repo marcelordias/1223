@@ -126,8 +126,8 @@ export function initializeSocketServer(app: Application, server: http.Server) {
       const verified = verifyToken(token);
 
       if (token && verified) {
-        const { id } = verified as { id: string };
-        User.findById(id)
+        const { _id } = verified as { _id: string };
+        User.findById(_id)
           .then((user) => {
             if (user) {
               const userData = { ...user.toObject(), _id: user._id.toString() };
