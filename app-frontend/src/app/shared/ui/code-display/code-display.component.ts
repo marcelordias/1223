@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SocketService } from '../../services/socket/socket.service';
 import { GridService } from '../../services/grid/grid.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-code-display',
@@ -18,7 +19,8 @@ export class CodeDisplayComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly gridService: GridService,
-    private readonly socketService: SocketService
+    private readonly socketService: SocketService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +36,10 @@ export class CodeDisplayComponent implements OnInit, OnDestroy {
   }
 
   copyCode(): void {
+    if (this.code === '00') {
+      this.router.navigate(['/']);
+      return;
+    }
     navigator.clipboard.writeText(this.code).then(
       () => alert('Code copied to clipboard!'),
       () => alert('Failed to copy code')

@@ -4,6 +4,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { GeneratorComponent } from './pages/generator/generator.component';
 import { PaymentsComponent } from './pages/payments/payments.component';
 import { AuthGuard } from './core/guards/auth/auth.guard';
+import { ChatComponent } from './pages/chat/chat.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,6 +16,11 @@ const routes: Routes = [
   {
     path: 'payments',
     component: PaymentsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'chat',
+    component: ChatComponent,
     canActivate: [AuthGuard]
   },
   { path: '', redirectTo: '/generator', pathMatch: 'full' },

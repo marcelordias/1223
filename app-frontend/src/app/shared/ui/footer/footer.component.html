@@ -1,9 +1,28 @@
-<footer *ngIf="socketId" class="p-4 text-left text-xs">
-    <span><strong>Socket ID:</strong> {{ socketId }}</span>
-    <span class="ml-4"><strong>Active users:</strong>&nbsp;
-        <div class="tooltip" [attr.data-tip]="'[' + activeUsers.join(', ') + ']'">
-            {{ activeUsers.length}}
+<footer class="footer-container p-4 text-left text-xs flex justify-between items-center bg-base-100 shadow-inner">
+    <div class="flex items-center">
+        <div *ngIf="socketId" class="flex items-center">
+            <div class="flex items-center mr-4">
+                <div class="w-2 h-2 rounded-full bg-success mr-2"></div>
+                <span class="hidden sm:inline">Connected</span>
+            </div>
+            
+            <span class="hidden md:inline mr-4"><strong>Socket ID:</strong> {{ socketId }}</span>
+            
+            <div class="flex items-center">
+                <strong>Users:</strong>&nbsp;
+                <div class="tooltip" [attr.data-tip]="activeUsers.length > 0 ? '[' + activeUsers.join(', ') + ']' : 'No active users'">
+                    <span class="badge badge-sm">{{ activeUsers.length }}</span>
+                </div>
+            </div>
         </div>
-    </span>
-
+        
+        <div *ngIf="!socketId" class="flex items-center">
+            <div class="w-2 h-2 rounded-full bg-error mr-2"></div>
+            <span>Disconnected</span>
+        </div>
+    </div>
+    
+    <div>
+        <app-theme-control></app-theme-control>
+    </div>
 </footer>

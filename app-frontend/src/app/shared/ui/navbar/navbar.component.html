@@ -4,15 +4,19 @@
             Code.gen
         </a>
     </div>
-    <div class="flex-none">
+    <div class="flex-none" *ngIf="!!userInfo">
         <ul class="menu menu-horizontal px-1">
             <li>
-                <app-theme-control></app-theme-control>
+                <a [routerLink]="['/chat']">
+                    Chat
+                </a>
             </li>
-            <li *ngIf="userInfo.username"><a [routerLink]="['/payments']">
+            <li>
+                <a [routerLink]="['/payments']">
                     Payments
-                </a></li>
-            <li *ngIf="userInfo.username">
+                </a>
+            </li>
+            <li>
                 <details>
                     <summary>
                         {{ userInfo.username }}
