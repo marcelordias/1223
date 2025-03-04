@@ -14,9 +14,7 @@ export class SocketService implements OnDestroy {
 
   toast$ = new Subject<{ message: string; type: string }>();
 
-  constructor(
-    private readonly authService: AuthService
-  ) {
+  constructor(private readonly authService: AuthService) {
     this.socket = io(environment.socketUrl, {
       auth: {
         token: this.authService.getToken(),
@@ -36,7 +34,7 @@ export class SocketService implements OnDestroy {
       this.authService.logout();
     });
 
-    this.socket.on("toast", (data: { message: string; type: string }) => {
+    this.socket.on('toast', (data: { message: string; type: string }) => {
       this.toast$.next(data);
     });
 
@@ -77,6 +75,10 @@ export class SocketService implements OnDestroy {
 
   public getSocketId(): string {
     return this.socket.connected ? this.socket.id ?? '' : '';
+  }
+
+  public off(event: string): void {
+    this.socket.off(event);
   }
 
   ngOnDestroy(): void {

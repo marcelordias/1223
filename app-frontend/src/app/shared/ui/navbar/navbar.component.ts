@@ -8,16 +8,15 @@ import { AuthService, UserInfo } from '../../services/auth/auth.service';
   styleUrl: './navbar.component.css',
 })
 export class NavbarComponent implements OnInit {
-  userInfo: UserInfo = { username: '' };
+  userInfo?: UserInfo;
 
-  constructor(
-    private readonly authService: AuthService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authService.userInfoSubject$.subscribe((userInfo) => {
-      this.userInfo = userInfo || { username: '' };
-    });
+    this.authService.userInfoSubject$
+      .subscribe((user) => {
+        this.userInfo = user ?? undefined;
+      });
   }
 
   onLogout(): void {

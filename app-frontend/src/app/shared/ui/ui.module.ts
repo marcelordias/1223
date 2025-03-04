@@ -30,6 +30,7 @@ import { ClockComponent } from './clock/clock.component';
     RouterModule
   ],
   exports: [
+    FormsModule,
     InputComponent,
     NavbarComponent,
     CodeDisplayComponent,

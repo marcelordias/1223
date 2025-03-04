@@ -15,6 +15,7 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { TokenInterceptor } from './core/interceptors/token.interceptor';
+import { ChatComponent } from './pages/chat/chat.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { TokenInterceptor } from './core/interceptors/token.interceptor';
     GridComponent,
     PaymentsComponent,
     LoginComponent,
+    ChatComponent,
   ],
   imports: [
     BrowserModule,

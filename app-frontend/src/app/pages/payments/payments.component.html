@@ -8,9 +8,9 @@
         <button class="btn btn-primary" (click)="addPayment()">+ ADD</button>
     </div>
 
-    <div class="overflow-x-auto">
-        <app-table [columns]="tableColumns" [data]="paymentList" (gridClick)="showGrid($event)"></app-table>
-    </div>
+    <div class="flex items-center gap-10 mb-4 justify-center">
+        <app-table style="width: 80%;" [columns]="tableColumns" [data]="paymentList" (gridClick)="showGrid($event)"></app-table>
+    </div>    
 </div>
 
 <app-modal title="Grid Details">

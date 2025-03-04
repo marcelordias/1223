@@ -9,6 +9,7 @@ import { User } from "../models/user.model";
 import { UserType } from "../types/user.type";
 import { generateToken } from "../utils/token.util";
 import { comparePassword, hashPassword } from "../utils/password.util";
+import { secureUser } from "../utils/auth.util";
 
 export async function login(req: Request, res: Response): Promise<Response> {
   const { username, password } = req.body;
@@ -37,14 +38,14 @@ export async function login(req: Request, res: Response): Promise<Response> {
       } as ResponseMessageType);
     }
 
-    const token = generateToken({ id: user._id });
+    const token = generateToken({ _id: user._id });
 
     return res.status(ResponseCodeStatusEnum.SUCCESS).json({
       status: ResponseStatusEnum.SUCCESS,
       message: ResponseMessageEnum.SIGNIN_SUCCESS,
       data: {
         token,
-        user: user as unknown as UserType,
+        user: secureUser(user as unknown as UserType),
       },
     } as ResponseMessageType);
   } catch (error) {
@@ -82,14 +83,14 @@ export async function register(req: Request, res: Response): Promise<Response> {
 
     const createdData = await User.create(requestData);
 
-    const token = generateToken({ id: createdData._id });
+    const token = generateToken({ _id: createdData._id });
 
     return res.status(ResponseCodeStatusEnum.SUCCESS).json({
       status: ResponseStatusEnum.SUCCESS,
       message: ResponseMessageEnum.SUCCESS,
       data: {
         token,
-        user: createdData as unknown as UserType,
+        user: secureUser(user as unknown as UserType),
       },
     } as ResponseMessageType);
   } catch (error) {

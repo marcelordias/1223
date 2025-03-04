@@ -12,6 +12,7 @@ import { filter } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy {
   private authSub!: Subscription;
+  private toastSub!: Subscription;
   toasts: { message: string; type: 'info' | 'error' | 'success' }[] = [];
 
   constructor(
@@ -28,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authService.autoLogin().subscribe();
 
-    this.socketService.toast$.subscribe(({ message, type}) => {
+    this.toastSub = this.socketService.toast$.subscribe(({ message, type}) => {
       this.toasts.push({ message, type: type as 'info' | 'error' | 'success' });
       setTimeout(() => {
         this.toasts.shift();
@@ -39,6 +40,9 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.authSub) {
       this.authSub.unsubscribe();
+    }
+    if (this.toastSub) {
+      this.toastSub.unsubscribe();
     }
   }
 }
