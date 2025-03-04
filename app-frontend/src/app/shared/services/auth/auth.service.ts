@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 
 export interface UserInfo {
+  _id: string;
   username: string;
 }
 

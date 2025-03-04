@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userInfo } from "../controllers/user.controller";
+import { getUsers, userInfo } from "../controllers/user.controller";
 
 class UserRoutes {
   public router: Router;
@@ -12,6 +12,9 @@ class UserRoutes {
   private initializeRoutes(): void {
     this.router.get("/user-info", (req, res): void => {
       userInfo(req, res);
+    });
+    this.router.get("/users", (req, res): void => {
+      getUsers(req, res);
     });
   }
 }

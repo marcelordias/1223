@@ -15,7 +15,8 @@
                         <h3 class="font-medium text-sm opacity-70">Active</h3>
                     </div>
                     <ul class="menu bg-base-100 rounded-box p-0 mb-4">
-                        <li *ngFor="let user of users" class="hover:bg-base-200 transition-colors rounded-lg mb-1">
+                        <li *ngFor="let user of onlineUsers()"
+                            class="hover:bg-base-200 transition-colors rounded-lg mb-1">
                             <div class="flex items-center justify-between p-2">
                                 <div class="flex items-center gap-2">
                                     <div class="avatar placeholder">
@@ -42,7 +43,7 @@
                         <h3 class="font-medium text-sm opacity-70">Inactive</h3>
                     </div>
                     <ul class="menu bg-base-100 rounded-box p-0">
-                        <li *ngFor="let user of users"
+                        <li *ngFor="let user of offlineUsers()"
                             class="hover:bg-base-200 transition-colors rounded-lg mb-1 opacity-60">
                             <div class="p-2">
                                 <div class="flex items-center gap-2">
